@@ -10,11 +10,11 @@ server.listen({
 }, console.log('Server is up, listening to port 8080'));
 
 function onClientConnection(socket) {
+    
     socket.username = 'user'+Math.floor(Math.random() * 1000);
-
     connectedClients.push(socket);
+    
     console.log(`${socket.remoteAddress}: ${socket.remotePort} : ${socket.username} connected to server.`);
-
     socket.write('## Welcome to the chatserver ##\ntype .help for more commands');
     
     socket.on('data', function(data){
@@ -32,11 +32,19 @@ function onClientConnection(socket) {
         }        
     });
 
+    socket.on('close', function(){
+        sendServerMessage(`${socket.username} left the chat..`);
+        console.log(socket.username + ` closed connection to server`);        
+    });
+
+    socket.on('error', function(error){
+        console.error(`${socket.remoteAddress}: ${socket.remotePort} Error ${error}`);
+    });
+
     function sendUserMessage(message) {
         console.log(`${socket.username} on ${socket.adress} sent message: ${message}`);
         connectedClients.forEach(clientSocket => {
             if (clientSocket.username != socket.username && clientSocket.adress === socket.adress) {
-                
                 clientSocket.write(socket.username + ': ' + message);
             }
         })
@@ -49,15 +57,6 @@ function onClientConnection(socket) {
             }
         })
     }
-
-    socket.on('close', function(){
-        sendServerMessage(`${socket.username} left the chat..`);
-        console.log(socket.username + ` closed connection to server`);        
-    });
-
-    socket.on('error', function(error){
-        console.error(`${socket.remoteAddress}: ${socket.remotePort} Error ${error}`);
-    });
     
 };
 

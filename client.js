@@ -7,19 +7,15 @@ const rl = readlinePromises.createInterface({
 
 const port = 8080; //Port used to connect to server
 
-
 const userSocket = new net.Socket();
 
 async function connectToServer(user, ipadress) {
     console.log('Client: Attempting to connect server on adress: ' + ipadress)    
 
-    //createConnection
-   
     userSocket.connect(port, ipadress, function(){
         console.log(`Client: Connecting on port: ${port}`);
         userSocket.write(".setInitUserName " + user + ' ' +ipadress);  
        
-
         rl.on('line', (line) => {
             if (line === '.quit') {
                 userSocket.destroy();                
@@ -34,28 +30,24 @@ async function connectToServer(user, ipadress) {
     });
 }
 
-
 const start = async () => {  
     let username = await rl.question('What is your name?: ')
 
     let ipadress = await rl.question('Server adress: (ex 127.0.0.1): ')
     switch (username) {
         case undefined: 
-            console.log('Undefined input!')
+            console.log('Undefined input! Random username set!')
             connectToServer('user' + Math.floor(Math.random() * 100), ipadress)
             break;
         case ('' || ' '): 
-        console.log('Empty input!')
+        console.log('Empty input! Random username set!')
             connectToServer('user' + Math.floor(Math.random() * 100), ipadress)
             break;
         default: 
-            console.log('default input!')
+            console.log('Username set.')
             connectToServer(username, ipadress)
-    }
-
-    console.log('Efter switch för namn och ipadress!')   
+    }   
 }
-
 
 start();
 
